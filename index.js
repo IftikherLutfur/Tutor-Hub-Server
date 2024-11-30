@@ -27,6 +27,7 @@ async function run() {
   try {
 
      const tutorCollection = client.db("TutorHub").collection('tutorInfo')
+     const studentCollection = client.db("TutorHub").collection('studentInfo')
 
      app.post('/tutorInfo', async (req,res)=>{
       const tutor = req.body;
@@ -39,6 +40,25 @@ async function run() {
         const insertTutor = await tutorCollection.insertOne(tutor)
         res.send(insertTutor)
       }
+     })
+
+     app.post("/studentInfo", async(req,res)=>{
+      const student = req.body
+      const query = {email: student.email}
+      const existingStudent = await studentCollection.findOne(query)
+      if(existingStudent){
+        return res.send({message: "User already exist", insertedId: null})
+      }
+      else{
+        const insertStudent = await studentCollection.insertOne(student)
+        res.send(insertStudent)
+      }
+     })
+
+     app.get('/getTutor', async (req,res)=>{
+      const getTutor = req.body;
+      const result = await tutorCollection.find().toArray()
+      res.send(result)
      })
 
     // Connect the client to the server	(optional starting in v4.7)
