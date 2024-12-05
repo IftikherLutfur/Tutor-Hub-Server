@@ -29,6 +29,7 @@ async function run() {
 
     const tutorCollection = client.db("TutorHub").collection('tutorInfo')
     const studentCollection = client.db("TutorHub").collection('studentInfo')
+    const aboutUsCollection = client.db("TutorHub").collection('AboutUs')
 
 
     app.post('/jwt', async (req, res) => {
@@ -71,6 +72,12 @@ async function run() {
       const getTutor = req.body;
       const result = await tutorCollection.find().toArray()
       res.send(result)
+    })
+
+    app.get('/aboutUs', async (req, res)=>{
+      const result = await aboutUsCollection.find().toArray()
+      res.send(result)
+
     })
 
     // Connect the client to the server	(optional starting in v4.7)
