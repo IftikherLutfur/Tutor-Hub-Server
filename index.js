@@ -30,6 +30,7 @@ async function run() {
     const tutorCollection = client.db("TutorHub").collection('tutorInfo')
     const studentCollection = client.db("TutorHub").collection('studentInfo')
     const aboutUsCollection = client.db("TutorHub").collection('AboutUs')
+    const TutorReview = client.db("TutorHub").collection('tutorReviews')
 
 
     app.post('/jwt', async (req, res) => {
@@ -67,6 +68,16 @@ async function run() {
         res.send(insertStudent)
       }
     })
+    app.post('/tutorReview', async(req,res)=>{
+      const rivew = req.body
+      const insertTutorReview = await TutorReview.insertOne(rivew)
+      res.send(insertTutorReview) 
+    })
+  //   app.post('/tutorReview', (req, res) => {
+  //     const { message } = req.body;
+  //     console.log('Review received:', message);
+  //     res.status(200).json({ success: true, message: 'Review submitted successfully!' });
+  // });
 
     app.get('/getTutor', async (req, res) => {
       const getTutor = req.body;
