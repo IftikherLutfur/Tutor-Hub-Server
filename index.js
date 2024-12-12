@@ -85,6 +85,21 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/getStudent', async (req, res) => {
+      try {
+        const result = await studentCollection.find().toArray(); // Fetch all students
+        res.status(200).send(result); // Send back the result with a 200 status
+      } catch (error) {
+        console.error("Error fetching students:", error);
+        res.status(500).send({ error: "Internal Server Error" }); // Handle errors
+      }
+    });
+
+    app.get('/getTutorReview', async (req,res)=>{
+      const getTutorReviews = await TutorReview.find().toArray()
+      res.send(getTutorReviews)
+    })
+
     app.get('/aboutUs', async (req, res)=>{
       const result = await aboutUsCollection.find().toArray()
       res.send(result)
