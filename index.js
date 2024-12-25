@@ -1,5 +1,5 @@
 const express = require('express')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 require('dotenv').config();
@@ -41,7 +41,7 @@ async function run() {
 
     })
 
-    
+
 
     app.post('/tutorInfo', async (req, res) => {
       const tutor = req.body;
@@ -68,16 +68,16 @@ async function run() {
         res.send(insertStudent)
       }
     })
-    app.post('/tutorReview', async(req,res)=>{
+    app.post('/tutorReview', async (req, res) => {
       const rivew = req.body
       const insertTutorReview = await TutorReview.insertOne(rivew)
-      res.send(insertTutorReview) 
+      res.send(insertTutorReview)
     })
-  //   app.post('/tutorReview', (req, res) => {
-  //     const { message } = req.body;
-  //     console.log('Review received:', message);
-  //     res.status(200).json({ success: true, message: 'Review submitted successfully!' });
-  // });
+    //   app.post('/tutorReview', (req, res) => {
+    //     const { message } = req.body;
+    //     console.log('Review received:', message);
+    //     res.status(200).json({ success: true, message: 'Review submitted successfully!' });
+    // });
 
     app.get('/getTutor', async (req, res) => {
       const getTutor = req.body;
@@ -95,16 +95,90 @@ async function run() {
       }
     });
 
-    app.get('/getTutorReview', async (req,res)=>{
+    app.get('/getTutorReview', async (req, res) => {
       const getTutorReviews = await TutorReview.find().toArray()
       res.send(getTutorReviews)
     })
 
-    app.get('/aboutUs', async (req, res)=>{
+    app.get('/aboutUs', async (req, res) => {
       const result = await aboutUsCollection.find().toArray()
       res.send(result)
 
     })
+
+    app.patch('/studentUpdate/:id', async (req, res) => {
+      console.log("Received PATCH request at /studentUpdate/:id"); // Debugging log
+
+      const id = req.params.id;
+      const { role } = req.body;
+
+      if (!role) {
+        return res.status(400).json({ message: "Role is required" });
+      }
+
+      const filter = { _id: new ObjectId(id) };
+      const updateStudent = {
+        $set: { role: role }
+      };
+
+      try {
+        const result = await studentCollection.updateOne(filter, updateStudent);
+        if (result.modifiedCount > 0) {
+          return res.json({ modifiedCount: result.modifiedCount });
+        } else {
+          return res.status(404).json({ message: "Student not found or no changes made" });
+        }
+      } catch (error) {
+        console.error("Error updating student:", error);
+        return res.status(500).json({ message: "Error updating student" });
+      }
+    });
+
+    app.patch('/tutorUpdate/:id', async (req, res) => {
+      const id = req.params.id;
+      const { role } = req.body;
+      if(!role){
+        return res.status(404).json({message:"Role is required"})
+      }
+      const filter = { _id: new ObjectId(id) }
+      const updateTutor = {
+        $set: {role:role}
+      }
+
+      try {
+        const result = await tutorCollection.updateOne(filter, updateTutor)
+        if(result.modifiedCount>0){
+          res.json({modifiedCount: result.modifiedCount})
+        }
+        else{
+          res.status(404).json({messahe:"Tutor not found and no change made"})
+        }
+      } catch (error) {
+        console.error("Error updating student", error)
+        return res.status(500).json({message:"Error updating tutor"})
+      }
+    
+    
+    })
+
+    app.delete('/studentDelete/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const result = await studentCollection.deleteOne(filter);
+        if (result.deletedCount > 0) {
+          console.log("Successfully deleted document with ID:", id);
+          res.json({ deletedCount: result.deletedCount });
+        } else {
+          console.log("No document found with the specified ID.");
+          res.status(404).json({ message: "Student not found" });
+        }
+      } catch (error) {
+        console.error("Error deleting student:", error);
+        res.status(500).json({ message: "Error deleting student" });
+      }
+    });
+
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
