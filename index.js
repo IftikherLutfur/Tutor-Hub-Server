@@ -31,6 +31,7 @@ async function run() {
     const studentCollection = client.db("TutorHub").collection('studentInfo')
     const aboutUsCollection = client.db("TutorHub").collection('AboutUs')
     const TutorReview = client.db("TutorHub").collection('tutorReviews')
+    const courseCollection = client.db("TutorHub").collection('course')
 
 
     app.post('/jwt', async (req, res) => {
@@ -104,6 +105,10 @@ async function run() {
       const result = await aboutUsCollection.find().toArray()
       res.send(result)
 
+    })
+    app.get('/getCourse', async(req,res)=>{
+      const getTheCourseData = await courseCollection.find().toArray()
+      res.send(getTheCourseData)
     })
 
     app.patch('/studentUpdate/:id', async (req, res) => {
@@ -179,15 +184,28 @@ async function run() {
       }
     });
 
+    app.delete('/tutorDelete/:id', async (req, res)=>{
+      try {
+        const id  = req.params.id;
+        const tutorDelete = await tutorCollection.deleteOne({_id: new ObjectId(id)})
+        if (tutorDelete.deletedCount>0) {
+          console.log("Succcessfully deleted the tuotr with ID", id);
+          res.json({deletedCount: tutorDelete.deletedCount})
+        }
+        else{
+          console.log("No tutor find with the specified id");
+          res.status(404).json({message: "Error deleting tutor"})
+        }
+        
+      } catch (error) {
+        console.error("Error deleting tutor", error);
+        res.status(500).json({message: "Error Deleting the tutor"})
+      }
+    })
 
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
-    // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
   }
 }
 run().catch(console.dir);
