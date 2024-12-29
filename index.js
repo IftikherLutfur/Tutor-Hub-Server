@@ -80,6 +80,12 @@ async function run() {
     //     res.status(200).json({ success: true, message: 'Review submitted successfully!' });
     // });
 
+    app.post('/coursePost', async (req, res) => {
+      const post = req.body;
+      const coursePost = await courseCollection.insertOne(post)
+      res.send(coursePost)
+    })
+
     app.get('/getTutor', async (req, res) => {
       const getTutor = req.body;
       const result = await tutorCollection.find().toArray()
@@ -106,9 +112,16 @@ async function run() {
       res.send(result)
 
     })
-    app.get('/getCourse', async(req,res)=>{
+    app.get('/getCourse', async (req, res) => {
       const getTheCourseData = await courseCollection.find().toArray()
       res.send(getTheCourseData)
+    })
+
+    app.get('/getCourse/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const findIndividualCourse = await courseCollection.findOne(query)
+      res.send(findIndividualCourse)
     })
 
     app.patch('/studentUpdate/:id', async (req, res) => {
@@ -142,28 +155,28 @@ async function run() {
     app.patch('/tutorUpdate/:id', async (req, res) => {
       const id = req.params.id;
       const { role } = req.body;
-      if(!role){
-        return res.status(404).json({message:"Role is required"})
+      if (!role) {
+        return res.status(404).json({ message: "Role is required" })
       }
       const filter = { _id: new ObjectId(id) }
       const updateTutor = {
-        $set: {role:role}
+        $set: { role: role }
       }
 
       try {
         const result = await tutorCollection.updateOne(filter, updateTutor)
-        if(result.modifiedCount>0){
-          res.json({modifiedCount: result.modifiedCount})
+        if (result.modifiedCount > 0) {
+          res.json({ modifiedCount: result.modifiedCount })
         }
-        else{
-          res.status(404).json({messahe:"Tutor not found and no change made"})
+        else {
+          res.status(404).json({ messahe: "Tutor not found and no change made" })
         }
       } catch (error) {
         console.error("Error updating student", error)
-        return res.status(500).json({message:"Error updating tutor"})
+        return res.status(500).json({ message: "Error updating tutor" })
       }
-    
-    
+
+
     })
 
     app.delete('/studentDelete/:id', async (req, res) => {
@@ -184,22 +197,22 @@ async function run() {
       }
     });
 
-    app.delete('/tutorDelete/:id', async (req, res)=>{
+    app.delete('/tutorDelete/:id', async (req, res) => {
       try {
-        const id  = req.params.id;
-        const tutorDelete = await tutorCollection.deleteOne({_id: new ObjectId(id)})
-        if (tutorDelete.deletedCount>0) {
+        const id = req.params.id;
+        const tutorDelete = await tutorCollection.deleteOne({ _id: new ObjectId(id) })
+        if (tutorDelete.deletedCount > 0) {
           console.log("Succcessfully deleted the tuotr with ID", id);
-          res.json({deletedCount: tutorDelete.deletedCount})
+          res.json({ deletedCount: tutorDelete.deletedCount })
         }
-        else{
+        else {
           console.log("No tutor find with the specified id");
-          res.status(404).json({message: "Error deleting tutor"})
+          res.status(404).json({ message: "Error deleting tutor" })
         }
-        
+
       } catch (error) {
         console.error("Error deleting tutor", error);
-        res.status(500).json({message: "Error Deleting the tutor"})
+        res.status(500).json({ message: "Error Deleting the tutor" })
       }
     })
 
