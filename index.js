@@ -152,6 +152,37 @@ async function run() {
       }
     });
 
+    // Course Update
+    app.patch('/updateCourse/:id', async (req, res) => {
+      console.log("Received PATCH request at /updateCourse/:id"); // Debugging log
+
+      const id = req.params.id;
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      const filter = { _id: new ObjectId(id) };
+      const updateCourse = {
+        $set: { status: status }
+      };
+
+      try {
+        const result = await courseCollection.updateOne(filter, updateCourse);
+        if (result.modifiedCount > 0) {
+          return res.json({ modifiedCount: result.modifiedCount });
+        } else {
+          return res.status(404).json({ message: "Course not found or no changes made" });
+        }
+      } catch (error) {
+        console.error("Error updating course:", error);
+        return res.status(500).json({ message: "Error updating course" });
+      }
+    });
+
+
+    // Tutor Update
     app.patch('/tutorUpdate/:id', async (req, res) => {
       const id = req.params.id;
       const { role } = req.body;
@@ -194,6 +225,25 @@ async function run() {
       } catch (error) {
         console.error("Error deleting student:", error);
         res.status(500).json({ message: "Error deleting student" });
+      }
+    });
+
+    app.delete("/deleteCourse/:id", async (req, res) => {
+
+
+      try {
+        const id = req.params.id
+        const courseDelete = await courseCollection.deleteOne({ _id: new ObjectId(id) });
+        if(courseDelete.deletedCount>0){
+          console.log("Successfully deleted the course with ID", id);
+          res.json({deletedCount: courseDelete.deletedCount}) 
+        }
+        else{
+          console.log("No course with the specified id")
+          res.status(404).json({message:"Error deleting course"})
+        }
+      } catch (error) {
+        res.status(500).json({ message: "Error deleting course", error });
       }
     });
 
