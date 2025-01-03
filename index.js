@@ -130,6 +130,12 @@ async function run() {
       res.send(findIndividualCourse)
     })
 
+    app.get('/getBlogs/:id', async (req,res)=>{
+      const id = req.params.id;
+      const findBlogsIndividually = await blogCllection.findOne({_id: new ObjectId(id)})
+      res.send(findBlogsIndividually)
+    })
+
     app.patch('/studentUpdate/:id', async (req, res) => {
       console.log("Received PATCH request at /studentUpdate/:id"); // Debugging log
 
