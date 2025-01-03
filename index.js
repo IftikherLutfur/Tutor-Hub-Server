@@ -87,6 +87,12 @@ async function run() {
       res.send(coursePost)
     })
 
+    app.post('/postBlog', async (req,res)=>{
+      const post = req.body;
+      const postBlogs = await blogCllection.insertOne(post)
+      res.send(postBlogs)
+    })
+
     app.get('/getTutor', async (req, res) => {
       const getTutor = req.body;
       const result = await tutorCollection.find().toArray()
