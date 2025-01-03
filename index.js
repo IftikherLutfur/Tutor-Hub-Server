@@ -32,6 +32,7 @@ async function run() {
     const aboutUsCollection = client.db("TutorHub").collection('AboutUs')
     const TutorReview = client.db("TutorHub").collection('tutorReviews')
     const courseCollection = client.db("TutorHub").collection('course')
+    const blogCllection = client.db('TutorHub').collection('blogs')
 
 
     app.post('/jwt', async (req, res) => {
@@ -101,6 +102,11 @@ async function run() {
         res.status(500).send({ error: "Internal Server Error" }); // Handle errors
       }
     });
+
+    app.get('/getBlogs', async(req,res)=>{
+      const getBlogs = await blogCllection.find().toArray()
+      res.send(getBlogs)
+    })
 
     app.get('/getTutorReview', async (req, res) => {
       const getTutorReviews = await TutorReview.find().toArray()
@@ -228,6 +234,13 @@ async function run() {
       }
     });
 
+    app.delete('/deleteBlog/:id', async (req,res)=>{
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const blogDelete = await blogCllection.deleteOne(query)
+      res.send(blogDelete)
+    })
+
     app.delete("/deleteCourse/:id", async (req, res) => {
 
 
@@ -281,3 +294,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Hello World ${port}`)
 })
+
